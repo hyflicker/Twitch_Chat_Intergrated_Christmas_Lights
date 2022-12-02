@@ -1,6 +1,6 @@
 {
   "name": "nodelights",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Controller for Christmas/LED strip lights",
   "type": "module",
   "main": "app.js",

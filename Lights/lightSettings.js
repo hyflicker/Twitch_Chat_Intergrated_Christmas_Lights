@@ -2,7 +2,8 @@ import ws281x from 'rpi-ws281x-native';
 
 let notiQueue = [];
 //Default Lightshows 
-let defaultQueue = [{
+let defaultQueue = [
+    {
     "id": 1,
     "type": "colorWipe",
     "name": "colorWipe",
@@ -13,7 +14,8 @@ let defaultQueue = [{
     "type": "colorWipeReverse",
     "name": "colorWipeReverse",
     "color": "0xFFFFFF"
-}];
+}
+];
 
 //Set's Default Options For LED Strip
 const ledCount = 100;

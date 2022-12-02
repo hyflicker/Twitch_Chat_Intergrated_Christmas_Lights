@@ -12,7 +12,7 @@ async function colorWipe(color,alert=0){
             break;
         }
         colors[i] = color;
-        await timeout(35)
+        await timeout(25)
         render();	
     }
 }
@@ -22,11 +22,10 @@ async function colorWipeReverse(color,alert=0){
     for (let i = colors.length; i >= 0; i--) {
         if((notiQueue.length > 0) && (alert == 0)){
             reset();
-            console.log("returned")
             return;
         }
         colors[i] = color;
-        await timeout(35)
+        await timeout(25)
         render();	
     }
 }
@@ -101,7 +100,7 @@ async function rainbowFlash(alert=0){
    }
 }
 
-async function colorTwinkle(color,color2,iterations=5,alert = 0){
+async function colorTwinkle(color,color2,iterations=10,alert = 0){
     //Controller function for Color Twinkle Lightshow 
     for (let j = 0; j < iterations; j++) {
         for (let i = 0; i < ledCount; i++) {
@@ -113,9 +112,10 @@ async function colorTwinkle(color,color2,iterations=5,alert = 0){
             }else{
                 colors[i] = '0x00000'
             }
-            render()
+            
         }
-        await timeout(125)
+        render()
+        await timeout(650)
         for (let i = 0; i < ledCount; i++) {
             if((notiQueue.length > 0) && (alert == 0)){
                 return
@@ -125,9 +125,10 @@ async function colorTwinkle(color,color2,iterations=5,alert = 0){
             }else{
                 colors[i] = color2
             }
-            render()
+            
         }
-        await timeout(125)    
+        render()
+        await timeout(650)    
     }
     reset();
 }
