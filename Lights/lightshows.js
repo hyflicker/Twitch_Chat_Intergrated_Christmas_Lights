@@ -12,7 +12,7 @@ async function colorWipe(color,alert=0){
             break;
         }
         colors[i] = color;
-        await timeout(25)
+        await timeout(25);
         render();	
     }
 }
