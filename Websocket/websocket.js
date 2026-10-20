@@ -7,6 +7,53 @@ import 'dotenv/config'
 let wsConnected = false;
 let wsStartInt = null;
 
+// Blackout / Off color detection configuration
+const BLACKOUT_DURATION_MS = 20000;
+const NEAR_BLACK_CHANNEL_THRESHOLD = 0x0f; // 15: pure black (#000000) through near-black (<= #0F0F0F)
+
+// Initial fallback patterns to revert to if previousDefault is empty or off
+const fallbackDefault = JSON.parse(JSON.stringify(defaultQueue));
+
+// Keeps track of the last active visible (non-off) patterns
+let previousDefault = JSON.parse(JSON.stringify(defaultQueue));
+
+// Timer tracking active blackout auto-reversion
+let blackoutTimer = null;
+
+function isColorOff(colorHex) {
+    if (!colorHex) return false;
+    const cleanHex = String(colorHex).toLowerCase().replace(/^0x|^#/, '');
+    if (cleanHex.length !== 6) return false;
+    const c1 = parseInt(cleanHex.slice(0, 2), 16);
+    const c2 = parseInt(cleanHex.slice(2, 4), 16);
+    const c3 = parseInt(cleanHex.slice(4, 6), 16);
+    if (isNaN(c1) || isNaN(c2) || isNaN(c3)) return false;
+    return c1 <= NEAR_BLACK_CHANNEL_THRESHOLD &&
+           c2 <= NEAR_BLACK_CHANNEL_THRESHOLD &&
+           c3 <= NEAR_BLACK_CHANNEL_THRESHOLD;
+}
+
+function isPatternOff(pattern) {
+    if (!pattern || !pattern.color) {
+        return false;
+    }
+    if (!isColorOff(pattern.color)) {
+        return false;
+    }
+    if (pattern.color2 && !isColorOff(pattern.color2)) {
+        return false;
+    }
+    return true;
+}
+
+function isQueueAllOff(queue) {
+    return Array.isArray(queue) && queue.length > 0 && queue.every(isPatternOff);
+}
+
+function updateDefaultQueue(newItems) {
+    defaultQueue.splice(0, defaultQueue.length, ...JSON.parse(JSON.stringify(newItems)));
+}
+
 function wsStart(){
     console.log('attempting to start ws')
     wsClient.connect(process.env.MJRURL);
@@ -77,14 +124,27 @@ wsClient.on('connect', (connection) => {
             let json = JSON.parse(message.utf8Data);
             
             async function checkDefaultColors (input){
-                input = input.toLowerCase()
-                if(defaultColors.filter(color => color.name === input).length > 0){
+                if (!input || typeof input !== 'string') {
                     return {
-                        color : defaultColors.filter(color => color.name === input)[0].color,
+                        color: null,
+                        defaultStatus: false
+                    };
+                }
+                input = input.trim().toLowerCase();
+                const matched = defaultColors.find(color => color.name.toLowerCase() === input);
+                if(matched){
+                    return {
+                        color : matched.color,
                         defaultStatus: true
                     }
                 }else{
-                    if(input.length !== 7){
+                    if (/^#?[0-9a-f]{3}$/i.test(input)) {
+                        const hexOnly = input.replace('#', '');
+                        input = '#' + hexOnly[0] + hexOnly[0] + hexOnly[1] + hexOnly[1] + hexOnly[2] + hexOnly[2];
+                    } else if (/^[0-9a-f]{6}$/i.test(input)) {
+                        input = '#' + input;
+                    }
+                    if (!/^#[0-9a-f]{6}$/i.test(input)) {
                         return {
                             color : null,
                             defaultStatus: false
@@ -104,58 +164,65 @@ wsClient.on('connect', (connection) => {
                 switch (type) {
                     case 1:
                         for (let i = 0; i < args.length; i++) {
-                            console.log(await checkDefaultColors(args[i]))
-                            //Runs Solid Lightshow when only arg is HEX
-                            if(((args[i][0] === "#") && (args[i].length === 7)) || ((await checkDefaultColors(args[i])).defaultStatus)){
+                            const currentArg = args[i];
+                            if (!currentArg) continue;
+                            const colorInfo = await checkDefaultColors(currentArg);
+                            console.log(colorInfo);
+
+                            //Runs Solid Lightshow when only arg is HEX or Default Color name
+                            if(colorInfo.color && (currentArg.startsWith("#") || colorInfo.defaultStatus)){
                                 newDefault.push({
                                     "id": 5,
                                     "type": "solid",
                                     "name": "solid",
-                                    "color": `0x${(await checkDefaultColors(args[i].toLowerCase())).color}`,
+                                    "color": `0x${colorInfo.color}`,
                                     "color2": null
                                 })
                             }else{
                                 //Runs each Lightshow based on input from chatter
-                                switch (args[i].toLowerCase()) {
-                                    case 'solid':
-                                        if(!((args[i+1][0] === "#") && (args[i+1].length === 7) || checkDefaultColors(args[i+1].toLowerCase()))){
-                                            return;
-                                        }
+                                switch (currentArg.toLowerCase()) {
+                                    case 'solid': {
+                                        if(!args[i+1]) return;
+                                        const nextColor = await checkDefaultColors(args[i+1]);
+                                        if(!nextColor.color) return;
                                         newDefault.push({
                                             "id": 5,
                                             "type": "solid",
                                             "name": "solid",
-                                            "color": `0x${(await checkDefaultColors(args[i+1].toLowerCase())).color}`,
+                                            "color": `0x${nextColor.color}`,
                                             "color2": null
                                         })
                                         i += 1;
                                         break;
-                                    case 'colorwipe':
-                                        if(!(args[i+1][0] === "#") && (args[i+1].length === 7)){
-                                            return;
-                                        }
+                                    }
+                                    case 'colorwipe': {
+                                        if(!args[i+1]) return;
+                                        const nextColor = await checkDefaultColors(args[i+1]);
+                                        if(!nextColor.color) return;
                                         newDefault.push({
                                             "id": 1,
                                             "type": "color-wipe",
                                             "name": "color wipe",
-                                            "color": `0x${(await checkDefaultColors(args[i+1].toLowerCase())).color}`,
+                                            "color": `0x${nextColor.color}`,
                                             "color2": null
                                         })
                                         i += 1;
                                         break;
-                                    case 'colorwipereverse':
-                                        if(!(args[i+1][0] === "#") && (args[i+1].length === 7)){
-                                            return;
-                                        }
+                                    }
+                                    case 'colorwipereverse': {
+                                        if(!args[i+1]) return;
+                                        const nextColor = await checkDefaultColors(args[i+1]);
+                                        if(!nextColor.color) return;
                                         newDefault.push({
                                             "id": 2,
                                             "type": "color-wipe-reverse",
                                             "name": "color wipe reverse",
-                                            "color": `0x${(await checkDefaultColors(args[i+1].toLowerCase())).color}`,
+                                            "color": `0x${nextColor.color}`,
                                             "color2": null
                                         })
                                         i += 1;
                                         break;
+                                    }
                                     case 'rainbow':
                                         newDefault.push({
                                             "id": 3,
@@ -174,22 +241,23 @@ wsClient.on('connect', (connection) => {
                                             "color2": null
                                         })
                                         break;
-                                    case 'colortwinkle':
-                                        let color2;
-                                        if(args[i+2]){
-                                            color2 = args[i+2].toLowerCase();
-                                        }else{
-                                            color2 = 'white';
-                                        }
+                                    case 'colortwinkle': {
+                                        if(!args[i+1]) return;
+                                        const c1 = await checkDefaultColors(args[i+1]);
+                                        if(!c1.color) return;
+                                        const c2Arg = args[i+2] ? args[i+2].toLowerCase() : 'white';
+                                        const c2 = await checkDefaultColors(c2Arg);
+                                        if(!c2.color) return;
                                         newDefault.push({
                                             "id": 16,
                                             "type": "color-twinkle",
                                             "name": "color twinkle",
-                                            "color": `0x${(await checkDefaultColors(args[i+1].toLowerCase())).color}`,
-                                            "color2": `0x${(await checkDefaultColors(color2)).color}`
+                                            "color": `0x${c1.color}`,
+                                            "color2": `0x${c2.color}`
                                         })
-                                        i += 2;
+                                        i += (args[i+2] ? 2 : 1);
                                         break;
+                                    }
                                     case 'candycane':
                                         newDefault.push({
                                             "id": 15,
@@ -198,7 +266,6 @@ wsClient.on('connect', (connection) => {
                                             "color": null,
                                             "color2": null
                                         })
-                                        i+=1
                                         break;
                                     case 'christmas':
                                         newDefault.push({
@@ -208,7 +275,6 @@ wsClient.on('connect', (connection) => {
                                             "color": null,
                                             "color2": null
                                         })
-                                        i+=1
                                         break;
                                     default:
                                         break;
@@ -216,29 +282,48 @@ wsClient.on('connect', (connection) => {
                             }
                         }
                         if(newDefault.length > 0){
-                            console.log(defaultQueue.length)
-                            const num = defaultQueue.length;
-                            for (let i = 0; i < num; i++) {
-                                console.log(i)
-                                defaultQueue.shift();                        
+                            const isBlackout = isQueueAllOff(newDefault);
+
+                            if (blackoutTimer) {
+                                clearTimeout(blackoutTimer);
+                                blackoutTimer = null;
                             }
-                            for (let i = 0; i < newDefault.length; i++) {
-                                defaultQueue.push(newDefault[i]);                        
+
+                            if (!isBlackout) {
+                                previousDefault = JSON.parse(JSON.stringify(newDefault));
+                                updateDefaultQueue(newDefault);
+                                console.log('defaultQueue updated:', defaultQueue);
+                            } else {
+                                console.log('Blackout redemption detected. Turning lights off for 20 seconds, then reverting...');
+                                updateDefaultQueue(newDefault);
+                                console.log('defaultQueue set to blackout:', defaultQueue);
+
+                                blackoutTimer = setTimeout(() => {
+                                    const revertQueue = (Array.isArray(previousDefault) && previousDefault.length > 0 && !isQueueAllOff(previousDefault))
+                                        ? previousDefault
+                                        : fallbackDefault;
+                                    console.log('20 seconds elapsed. Reverting defaultQueue from blackout to:', revertQueue);
+                                    updateDefaultQueue(revertQueue);
+                                    blackoutTimer = null;
+                                }, BLACKOUT_DURATION_MS);
                             }
-                            console.log(defaultQueue)
                         }else{
                             return
                         }
                         break;
-                    case 2:
-                        notiQueue.push({
-                            "id": 6,
-                            "type": "color-flash",
-                            "name": "color flash",
-                            "color": `0x${(await checkDefaultColors(args[0])).color}`
-                        })
-                        console.log(notiQueue)
+                    case 2: {
+                        const flashColor = await checkDefaultColors(args[0]);
+                        if (flashColor.color) {
+                            notiQueue.push({
+                                "id": 6,
+                                "type": "color-flash",
+                                "name": "color flash",
+                                "color": `0x${flashColor.color}`
+                            });
+                        }
+                        console.log(notiQueue);
                         break;
+                    }
                     default:
                         break;
                 }
