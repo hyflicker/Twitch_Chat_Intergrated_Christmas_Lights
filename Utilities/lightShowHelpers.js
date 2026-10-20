@@ -116,6 +116,14 @@ function wheel(pos){
             //Raid
                 await lights.raid(data);
                 break;
+            case 15:
+            //Candycane
+                await lights.candycane();
+                break;
+            case 17:
+            //Christmas
+                await lights.christmas();
+                break;
             default:
             //Logs that the show doesn't exist and to continue. 
                 console.log('No Show Available')

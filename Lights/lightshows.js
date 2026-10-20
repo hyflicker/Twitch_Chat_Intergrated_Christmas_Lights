@@ -145,6 +145,70 @@ async function solid(color, alert=0){
     await pause(5000)
 }
 
+async function candycane(){
+    for (let i = 0; i < 10; i++) {
+        colors[i] = '0xFFFFFF'
+    }
+    for (let i = 10; i < 20; i++) {
+        colors[i] = '0x00FF00'
+    }
+    for (let i = 15; i < 30; i++) {
+        colors[i] = '0xFFFFFF'
+    }
+    for (let i = 30; i < 48; i++) {
+        colors[i] = '0x00FF00'
+    }
+    for (let i = 48; i < 70; i++) {
+        colors[i] = '0xFFFFFF'
+    }
+    for (let i = 70; i < 100; i++) {
+        colors[i] = '0x00FF00'
+    }
+    if((notiQueue.length > 0) && (alert == 0)){
+        return
+    }
+    render();
+    await pause(5000)
+}
+
+async function alternate(color, color2, interactions = 10, alert = 0){
+
+}
+
+async function christmas(alert = 0){
+    const colorSelection = [
+        '0x1A455C',
+        '0x530ADE',
+        '0x002424',
+        '0xF2FB1A',
+        '0x6FFB24',
+        '0x00EA0D'
+    ]
+    for (let i = 0; i < 100; i++){
+        switch (i % 6){
+            case 0:
+                colors[i] = colorSelection[0]
+                break
+            case 1:
+                colors[i] = colorSelection[1]
+                break
+            case 2:
+                colors[i] = colorSelection[3]
+                break
+            case 4:
+                colors[i] = colorSelection[4]
+                break
+            case 5:
+                colors[i] = colorSelection[5]
+                break
+        }
+    }
+    render();
+    await pause(5000)
+}
+
+
+
 async function follow(color){
     //Controller function for Follow Alert
     reset()
@@ -218,6 +282,8 @@ async function raid(data){
 
 export default {
     colorWipe,
+    candycane,
+    christmas,
     colorWipeReverse,
     rainbow,
     solid,

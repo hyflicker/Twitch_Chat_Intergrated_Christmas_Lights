@@ -18,7 +18,7 @@ export const defaultColors = [
     },
     {
         name: "orange",
-        color: "A5FF00"
+        color: "399400"
     },
     {
         name: "pink",

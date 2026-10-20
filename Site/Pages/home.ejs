@@ -4,155 +4,384 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <style>
+        /* Base (Light Mode) Variables */
+        :root {
+            --bs-body-bg: #f8f9fa;
+            --bs-body-color: #212529;
+            --bs-header-bg: #0d6efd;
+            --bs-header-color: white;
+            --bs-card-bg: white;
+            --bs-card-header-bg: #e9ecef;
+            --bs-syntax-bg: #e9ecef;
+            --bs-syntax-border: #0d6efd;
+            --bs-example-bg: #fff3cd;
+            --bs-example-text: #212529;
+            --bs-primary-text: #0d6efd;
+            --bs-secondary-text: #6c757d;
+            --bs-success-text: #198754;
+            --bs-info-text: #6c757d; /* Info text color (muted in light mode) */
+        }
+
+        /* VIBRANT Dark Mode Variables */
+        body.dark-mode {
+            --bs-body-bg: #121212;
+            --bs-body-color: #e0e0e0;
+            --bs-header-bg: #3700b3;
+            --bs-header-color: #ffffff;
+            --bs-card-bg: #1e1e1e;
+            --bs-card-header-bg: #333333;
+            --bs-syntax-bg: #2c2c2c;
+            --bs-syntax-border: #03dac6;
+            --bs-example-bg: #3a2b00;
+            --bs-example-text: #ffffff;
+            --bs-primary-text: #bb86fc;
+            --bs-secondary-text: #a0a0a0;
+            --bs-success-text: #03dac6;
+            --bs-info-text: #a0a0a0; /* Info text color (visible in dark mode) */
+        }
+
+        /* Apply variables to elements */
+        body {
+            background-color: var(--bs-body-bg);
+            color: var(--bs-body-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .header-section {
+            background-color: var(--bs-header-bg);
+            color: var(--bs-header-color);
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .card {
+            background-color: var(--bs-card-bg);
+            color: var(--bs-body-color);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .card-header-custom {
+            background-color: var(--bs-card-header-bg);
+            font-weight: bold;
+        }
+        .syntax-box {
+            background-color: var(--bs-syntax-bg);
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            margin-bottom: 10px;
+            border-left: 5px solid var(--bs-syntax-border);
+            color: var(--bs-body-color);
+        }
+        .example-box p {
+            margin-bottom: 5px;
+            font-family: monospace;
+            background-color: var(--bs-example-bg);
+            padding: 5px;
+            border-radius: 3px;
+            color: var(--bs-example-text);
+        }
+        .example-box h6 {
+            color: var(--bs-example-text) !important;
+        }
+        /* NEW RULE for the specific information text */
+        .text-info-custom {
+            color: var(--bs-info-text) !important;
+        }
+
+        /* Ensure text colors use the new vibrant variables */
+        .text-primary { color: var(--bs-primary-text) !important; }
+        .text-secondary { color: var(--bs-secondary-text) !important; }
+        .text-success { color: var(--bs-success-text) !important; }
+
+        .list-group-item {
+            background-color: var(--bs-syntax-bg);
+            color: var(--bs-body-color);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        /* Override standard Bootstrap classes using variables */
+        .bg-light {
+            background-color: var(--bs-card-header-bg) !important;
+        }
+        .btn-outline-light {
+            border-color: var(--bs-header-color);
+            color: var(--bs-header-color);
+        }
+        .btn-outline-light:hover {
+            background-color: var(--bs-header-color);
+            color: var(--bs-header-bg);
+        }
+    </style>
     <title>LED Lights - How To Use</title>
 </head>
-<body>
-    <h1>How To Use LED Lights</h1>
-    <section>
-        <h2>Channel Point Redemptions</h2>
-        <p>Chat can control the lights by using channel point redemptions. There are 3 redemptions chat can use. More details below.</p>
-        <section>
-            <h3>Change Christmas Tree Lights: 200 Flick Coin</h3>
-            <img src="/Images/ChannelPoint1.png" alt="Channel Point Redemption for 200 points">
-            <p>This channel point redemption has the most functionality to mix and match different light shows. Lightshows and how to use them are below.</p>
-            <section>
-                <h4>Solid</h4>
-                <p>Solid Lightshow is just that, it sets the tree to a solid color. If you mix and match it turns the tree the given color for 5 seconds</p>
-                <div>
-                    <h5>Syntax</h5>
-                    <p>"hex or Default Color" or "solid hex or Default Color"</p>
-                </div>
-                <div>
-                    <h5>Examples</h5>
-                    <p>"#FF0000" or "solid #FF0000"</p>
-                    <p>"red" or "solid red"</p>
-                </div>
-            </section>
-            <section>
-                <h4>Rainbow</h4>
-                <p>Rainbow changes the color of the tree in a fade pattern for each color in the rainbow.</p>
-                <div>
-                    <h5>Syntax</h5>
-                    <p>"rainbow"</p>
-                </div>
-                <div>
-                    <h5>Examples</h5>
-                    <p>"rainbow"</p>
-                </div>
-            </section>
-            <section>
-                <h4>Rainbow Cycle</h4>
-                <p>Rainbow Cycle shows all the colors of the rainbow and cycles them to the top of the tree and repeats.</p>
-                <div>
-                    <h5>Syntax</h5>
-                    <p>"rainbowcycle"</p>
-                </div>
-                <div>
-                    <h5>Examples</h5>
-                    <p>"rainbowcycle"</p>
-                </div>
-            </section>
-            <section>
-                <h4>Color Wipe</h4>
-                <p>Color Wipe starts with the first led on the top of the tree and slowly changes each pixel to the color provided. Best used in mix and match.</p>
-                <div>
-                    <h5>Syntax</h5>
-                    <p>"colorwipe hex / Default Color"</p>
-                </div>
-                <div>
-                    <h5>Examples</h5>
-                    <p>"colorwipe #FF0000" or "colorwipe red"</p>
-                </div>
-            </section>
-            <section>
-                <h4>Color Wipe Reverse</h4>
-                <p>Color Wipe Reverse starts with the last led on the bottom of the tree and slowly changes each pixel to the color provided. Best used in mix and match.</p>
-                <div>
-                    <h5>Syntax</h5>
-                    <p>"colorwipereverse hex / Default Color"</p>
-                </div>
-                <div>
-                    <h5>Examples</h5>
-                    <p>"colorwipereverse #FF0000" or "colorwipereverse red"</p>
-                </div>
-            </section>
-            <section>
-                <h4>Color Twinkle</h4>
-                <p>Color Twinkle requires two colors to be passed and it alternates between the two colors. Turning them off and on. Red and Blue would look like police lights. By default second color is white.</p>
-                <div>
-                    <h5>Syntax</h5>
-                    <p>"colortwinkle hex / Default Color hex / Default Color"</p>
-                </div>
-                <div>
-                    <h5>Examples</h5>
-                    <p>"colortwinkle #FF0000 #0000FF" or "colortwinkle red blue"</p>
-                </div>
-            </section>
-            <section>
-                <h4>Mix and Match</h4>
-                <p>You can use any of the above to create your own light shows. You can combinded as many as you like.</p>
-                <div>
-                    <h5>Syntax</h5>
-                    <p>Use each light shows syntax</p>
-                </div>
-                <div>
-                    <h5>Examples</h5>
-                    <p>"colortwinkle #FF0000 #0000FF colorwipe #FFFFFF colorwipereverse #ab34FF (implided solid)#FF0000" or "colortwinkle red blue colorwipe white colorwipereverse #ab34FF (implided solid)red"</p>
-                </div>
-            </section>
-                <h4>Default Colors</h4>
-                <p>Below is a list of all the default colors you can use.</p>
-                <div>
-                    <h5>Colors</h5>
-                    <ul>
-                        <li>Red</li>
-                        <li>Blue</li>
-                        <li>Green</li>
-                        <li>Orange</li>
-                        <li>Pink</li>
-                        <li>Cyan</li>
-                        <li>white</li>
-                        <li>Black</li>
-                        <li>Purple</li>
-                        <li>Yellow</li>
-                    </ul>
-                </div>
-            </section>
-        </section>
-        <section>
-            <h3>Color Flash Christmas Tree Lights: 1000 Flick Coin</h3>
-            <img src="/Images/ChannelPoint2.png" alt="Channel Point Redemption for 1000 points">
-            <p>This channel point allows you to make the tree flash any color you provide for 10 seconds.</p>
-            <section>
-                <div>
-                    <h5>Syntax</h5>
-                    <p>"hex or Default Color"</p>
-                </div>
-                <div>
-                    <h5>Examples</h5>
-                    <p>"#FF0000"</p>
-                    <p>"red"</p>
-                </div>
-            </section>
-        </section>
-        <section>
-            <h3>Rainbow Flash Christmas Tree Lights: 2500 Flick Coin</h3>
-            <img src="/Images/ChannelPoint3.png" alt="Channel Point Redemption for 2500 points">
-            <p>This channel point allows you to make the tree flash in a rainbow uninterupted by any events. There is a 5 min cooldown.</p>
-        </section>
-        <section>
-            <h3>Event Lightshows</h3>
-            <p>All of the following channel events will show a customized lightshow when each of the following event happen on the channel.</p>
-            <ul>
-                <li>Follow</li>
-                <li>Bits</li>
-                <li>Subs</li>
-                <li>ReSubs</li>
-                <li>GiftSubs</li>
-                <li>Community GiftSubs</li>
-                <li>Raid</li>
-            </ul>
-        </section>
+<body class="light-mode">
+<header class="header-section position-relative">
+    <div class="container">
+        <h1 class="display-4">💡 LED Lights - How To Use</h1>
+        <p class="lead">Interactive light shows controlled by chat and channel events.</p>
+    </div>
+    <button id="theme-toggle" class="btn btn-sm btn-outline-light position-absolute top-0 end-0 m-3" aria-label="Toggle Light and Dark Mode">
+        <span class="mode-icon">🌙</span> Dark Mode
+    </button>
+</header>
+
+<main class="container">
+    <section id="event-lightshows" class="mb-5">
+        <h2 class="mb-4 text-success">🎉 Event Lightshows</h2>
+        <p class="fs-5">The lights automatically trigger a customized show when the following channel events occur:</p>
+        <div class="row">
+            <div class="col-md-6">
+                <ul class="list-group">
+                    <li class="list-group-item">Follow</li>
+                    <li class="list-group-item">Bits</li>
+                    <li class="list-group-item">Subs</li>
+                    <li class="list-group-item">ReSubs</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <ul class="list-group">
+                    <li class="list-group-item">GiftSubs</li>
+                    <li class="list-group-item">Community GiftSubs</li>
+                    <li class="list-group-item">Raid</li>
+                </ul>
+            </div>
+        </div>
     </section>
+    <hr class="my-5">
+    <section id="channel-point-redemptions" class="mb-5">
+        <h2 class="mb-4 text-primary">Channel Point Redemptions</h2>
+        <p class="fs-5">Chat can control the lights using channel point redemptions. There are **3 primary redemptions** with different costs and functionalities.</p>
+
+        <div class="row g-4">
+            <div class="col-md-12">
+                <div class="card h-100">
+                    <div class="card-header card-header-custom">
+                        <h3>Change Christmas Tree Lights: 100 Honey Drops 🍯</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-lg-3 text-center">
+                                <img src="/Images/ChannelPoint1.png" alt="Channel Point Redemption for 200 points" class="img-fluid rounded mb-3" style="max-height: 150px;">
+                            </div>
+                            <div class="col-lg-9">
+                                <p>This redemption offers the **most functionality** for creating customized light shows by mixing and matching different patterns.</p>
+
+                                <h4 class="mt-4 mb-3 text-secondary">Available Lightshow Patterns</h4>
+                                <div class="row g-3">
+                                    <div class="col-sm-6 col-lg-4">
+                                        <div class="card bg-light h-100">
+                                            <div class="card-body p-3">
+                                                <h5 class="card-title">Solid</h5>
+                                                <p class="card-text small">Sets the tree to a single color. Mix and Match duration is 5 seconds.</p>
+                                                <div class="syntax-box">Syntax: `"hex or Default Color"` or `"solid hex or Default Color"`</div>
+                                                <div class="example-box">
+                                                    <h6 class="text-muted small">Examples</h6>
+                                                    <p>"#FF0000"</p>
+                                                    <p>"solid red"</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-lg-4">
+                                        <div class="card bg-light h-100">
+                                            <div class="card-body p-3">
+                                                <h5 class="card-title">Color Wipe (Top-Down)</h5>
+                                                <p class="card-text small">Starts at the top LED and slowly changes each pixel to the provided color. Best for Mix and Match.</p>
+                                                <div class="syntax-box">Syntax: `"colorwipe hex / Default Color"`</div>
+                                                <div class="example-box">
+                                                    <h6 class="text-muted small">Examples</h6>
+                                                    <p>"colorwipe #FF0000"</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-lg-4">
+                                        <div class="card bg-light h-100">
+                                            <div class="card-body p-3">
+                                                <h5 class="card-title">Color Wipe Reverse (Bottom-Up)</h5>
+                                                <p class="card-text small">Starts at the bottom LED and slowly changes each pixel to the provided color. Best for Mix and Match.</p>
+                                                <div class="syntax-box">Syntax: `"colorwipereverse hex / Default Color"`</div>
+                                                <div class="example-box">
+                                                    <h6 class="text-muted small">Examples</h6>
+                                                    <p>"colorwipereverse blue"</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-lg-4">
+                                        <div class="card bg-light h-100">
+                                            <div class="card-body p-3">
+                                                <h5 class="card-title">Color Twinkle</h5>
+                                                <p class="card-text small">Alternates quickly between two colors (on/off effect). Second color defaults to white. (e.g., Red/Blue for police lights).</p>
+                                                <div class="syntax-box">Syntax: `"colortwinkle hex/Color hex/Color"`</div>
+                                                <div class="example-box">
+                                                    <h6 class="text-muted small">Examples</h6>
+                                                    <p>"colortwinkle #FF0000 #0000FF"</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-lg-4">
+                                        <div class="card bg-light h-100">
+                                            <div class="card-body p-3">
+                                                <h5 class="card-title">Rainbow</h5>
+                                                <p class="card-text small">Changes color via a smooth fade pattern through the rainbow spectrum.</p>
+                                                <div class="syntax-box">Syntax: `"rainbow"`</div>
+                                                <div class="example-box">
+                                                    <h6 class="text-muted small">Examples</h6>
+                                                    <p>"rainbow"</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-lg-4">
+                                        <div class="card bg-light h-100">
+                                            <div class="card-body p-3">
+                                                <h5 class="card-title">Candycane</h5>
+                                                <p class="card-text small">Turns the tree lights to look like a candycane.</p>
+                                                <div class="syntax-box">Syntax: `"candycane"`</div>
+                                                <div class="example-box">
+                                                    <h6 class="text-muted small">Examples</h6>
+                                                    <p>"candycane"</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-lg-4">
+                                        <div class="card bg-light h-100">
+                                            <div class="card-body p-3">
+                                                <h5 class="card-title">Christmas Lights</h5>
+                                                <p class="card-text small">Turns the tree lights to look like actual Christmas lights.</p>
+                                                <div class="syntax-box">Syntax: `"christmas"`</div>
+                                                <div class="example-box">
+                                                    <h6 class="text-muted small">Examples</h6>
+                                                    <p>"christmas"</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <h4 class="mt-4 mb-3 text-secondary">Mix and Match Custom Shows 🎨</h4>
+                                <p>Combine any of the above light show syntaxes into a single command to create a custom sequence.</p>
+                                <div class="syntax-box">Syntax: Use each light show's syntax sequentially.</div>
+                                <div class="example-box">
+                                    <h6 class="text-muted small">Example (long form)</h6>
+                                    <p>"colortwinkle red blue colorwipe white colorwipereverse #ab34FF #FF0000"</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mt-4">
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-header card-header-custom">
+                        <h5>Default Colors</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Use these simple names instead of HEX codes for convenience.</p>
+                        <ul class="list-unstyled columns-2">
+                            <li><strong>Red</strong></li>
+                            <li><strong>Blue</strong></li>
+                            <li><strong>Green</strong></li>
+                            <li><strong>Orange</strong></li>
+                            <li><strong>Pink</strong></li>
+                            <li><strong>Cyan</strong></li>
+                            <li><strong>White</strong></li>
+                            <li><strong>Black</strong></li>
+                            <li><strong>Purple</strong></li>
+                            <li><strong>Yellow</strong></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-header card-header-custom">
+                        <h5>Color Flash Christmas Tree Lights: 250 Honey Drops 🍯</h5>
+                    </div>
+                    <div class="card-body">
+                        <img src="/Images/ChannelPoint2.png" alt="Channel Point Redemption for 1000 points" class="img-fluid rounded mb-3" style="max-height: 80px;">
+                        <p>Instantly flashes the tree with the provided color for **10 seconds**.</p>
+                        <div class="syntax-box">Syntax: `"hex or Default Color"`</div>
+                        <div class="example-box">
+                            <h6 class="text-muted small">Examples</h6>
+                            <p>"#00FF00"</p>
+                            <p>"green"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-header card-header-custom">
+                        <h5>Rainbow Flash Christmas Tree Lights: 500 Honey Drops 🍯</h5>
+                    </div>
+                    <div class="card-body">
+                        <img src="/Images/ChannelPoint3.png" alt="Channel Point Redemption for 2500 points" class="img-fluid rounded mb-3" style="max-height: 80px;">
+                        <p>Activates an intense, uninterrupted rainbow flash. **5 minute cooldown** applies.</p>
+                        <p class="small text-info-custom">No specific syntax input is required for this redemption.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="bg-dark text-white text-center py-3 mt-5">
+    <div class="container">
+        <p class="mb-0 small">&copy; LED Light Controls Documentation</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const toggleButton = document.getElementById('theme-toggle');
+        const body = document.body;
+
+        // Function to set the theme
+        function setTheme(mode) {
+            if (mode === 'dark') {
+                body.classList.add('dark-mode');
+                body.classList.remove('light-mode');
+                toggleButton.innerHTML = '<span class="mode-icon">☀️</span> Light Mode';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.classList.add('light-mode');
+                body.classList.remove('dark-mode');
+                toggleButton.innerHTML = '<span class="mode-icon">🌙</span> Dark Mode';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Check for saved theme preference or OS preference
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        if (savedTheme) {
+            setTheme(savedTheme);
+        } else if (prefersDark) {
+            setTheme('dark');
+        } else {
+            setTheme('light');
+        }
+
+        // Toggle logic
+        toggleButton.addEventListener('click', () => {
+            const currentTheme = body.classList.contains('dark-mode') ? 'dark' : 'light';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme);
+        });
+    });
+</script>
 </body>
 </html>

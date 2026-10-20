@@ -1,4 +1,4 @@
-import { notiQueue, defaultQueue} from '../Lights/lightSettings.js';
+import {notiQueue, defaultQueue, reset} from '../Lights/lightSettings.js';
 import WebSocketClient from 'websocket/lib/WebSocketClient.js';
 import { defaultColors } from '../Lights/defaultColors.js';
 import 'dotenv/config'
@@ -77,6 +77,7 @@ wsClient.on('connect', (connection) => {
             let json = JSON.parse(message.utf8Data);
             
             async function checkDefaultColors (input){
+                input = input.toLowerCase()
                 if(defaultColors.filter(color => color.name === input).length > 0){
                     return {
                         color : defaultColors.filter(color => color.name === input)[0].color,
@@ -103,27 +104,28 @@ wsClient.on('connect', (connection) => {
                 switch (type) {
                     case 1:
                         for (let i = 0; i < args.length; i++) {
+                            console.log(await checkDefaultColors(args[i]))
                             //Runs Solid Lightshow when only arg is HEX
                             if(((args[i][0] === "#") && (args[i].length === 7)) || ((await checkDefaultColors(args[i])).defaultStatus)){
                                 newDefault.push({
                                     "id": 5,
                                     "type": "solid",
                                     "name": "solid",
-                                    "color": `0x${(await checkDefaultColors(args[i])).color}`,
+                                    "color": `0x${(await checkDefaultColors(args[i].toLowerCase())).color}`,
                                     "color2": null
                                 })
                             }else{
                                 //Runs each Lightshow based on input from chatter
                                 switch (args[i].toLowerCase()) {
                                     case 'solid':
-                                        if(!((args[i+1][0] === "#") && (args[i+1].length === 7) || checkDefaultColors(args[i+1]))){
+                                        if(!((args[i+1][0] === "#") && (args[i+1].length === 7) || checkDefaultColors(args[i+1].toLowerCase()))){
                                             return;
                                         }
                                         newDefault.push({
                                             "id": 5,
                                             "type": "solid",
                                             "name": "solid",
-                                            "color": `0x${(await checkDefaultColors(args[i+1])).color}`,
+                                            "color": `0x${(await checkDefaultColors(args[i+1].toLowerCase())).color}`,
                                             "color2": null
                                         })
                                         i += 1;
@@ -136,7 +138,7 @@ wsClient.on('connect', (connection) => {
                                             "id": 1,
                                             "type": "color-wipe",
                                             "name": "color wipe",
-                                            "color": `0x${(await checkDefaultColors(args[i+1])).color}`,
+                                            "color": `0x${(await checkDefaultColors(args[i+1].toLowerCase())).color}`,
                                             "color2": null
                                         })
                                         i += 1;
@@ -149,11 +151,10 @@ wsClient.on('connect', (connection) => {
                                             "id": 2,
                                             "type": "color-wipe-reverse",
                                             "name": "color wipe reverse",
-                                            "color": `0x${(await checkDefaultColors(args[i+1])).color}`,
+                                            "color": `0x${(await checkDefaultColors(args[i+1].toLowerCase())).color}`,
                                             "color2": null
                                         })
                                         i += 1;
-                                        break;
                                         break;
                                     case 'rainbow':
                                         newDefault.push({
@@ -176,7 +177,7 @@ wsClient.on('connect', (connection) => {
                                     case 'colortwinkle':
                                         let color2;
                                         if(args[i+2]){
-                                            color2 = args[i+2];
+                                            color2 = args[i+2].toLowerCase();
                                         }else{
                                             color2 = 'white';
                                         }
@@ -184,10 +185,30 @@ wsClient.on('connect', (connection) => {
                                             "id": 16,
                                             "type": "color-twinkle",
                                             "name": "color twinkle",
-                                            "color": `0x${(await checkDefaultColors(args[i+1])).color}`,
+                                            "color": `0x${(await checkDefaultColors(args[i+1].toLowerCase())).color}`,
                                             "color2": `0x${(await checkDefaultColors(color2)).color}`
                                         })
                                         i += 2;
+                                        break;
+                                    case 'candycane':
+                                        newDefault.push({
+                                            "id": 15,
+                                            "type": "candycane",
+                                            "name": "candycane",
+                                            "color": null,
+                                            "color2": null
+                                        })
+                                        i+=1
+                                        break;
+                                    case 'christmas':
+                                        newDefault.push({
+                                            "id": 17,
+                                            "type": "christmas",
+                                            "name": "christmas",
+                                            "color": null,
+                                            "color2": null
+                                        })
+                                        i+=1
                                         break;
                                     default:
                                         break;
@@ -312,7 +333,9 @@ wsClient.on('connect', (connection) => {
             "nonce" : `${nonce(80)}`,
             "channel_id" : `${process.env.channelID}`,
             "topics" : ["channel_points_reward_redeem", "channel_follow", "channel_bits", "channel_subscribe", "channel_resubscribe", "channel_sub_community_gifting", "channel_sub_gifting", "channel_raid"],
-            "token" : `${process.env.MJRToken}`
+            "token" : `${process.env.MJRToken}`,
+	    "platform":"Twitch",
+	    "app_id":"Christmas Lights"
         }));
     }
 })

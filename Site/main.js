@@ -5,10 +5,8 @@ import * as path from 'path';
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const app = express();
-const router = express.Router();
+const router = express.Router();app.use(router);
 const port = 3020;
-
-app.use(router);
 app.use(express.static(path.join(__dirname, '/Assets')))
 
 app.set('views', path.join(__dirname, '/Pages'));
@@ -21,4 +19,6 @@ router.route('/')
 
 app.listen(port, () => {
     console.log(`Lights Website Online at ${port}`)
-  })
+})
+
+
