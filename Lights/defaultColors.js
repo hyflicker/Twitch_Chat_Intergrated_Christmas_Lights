@@ -5,7 +5,7 @@ export const defaultColors = [
         color: "00FF00"
     },
     {
-        name : "blue",
+        name: "blue",
         color: "0000FF"
     },
     {
@@ -18,7 +18,7 @@ export const defaultColors = [
     },
     {
         name: "orange",
-        color: "399400"
+        color: "4dff00"
     },
     {
         name: "pink",
@@ -39,5 +39,9 @@ export const defaultColors = [
     {
         name: "purple",
         color: "0077bd"
+    },
+    {
+        name: "Magenta",
+        color: "00CCCC"
     }
 ]
