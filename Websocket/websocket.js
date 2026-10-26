@@ -1,4 +1,4 @@
-import {notiQueue, defaultQueue, reset} from '../Lights/lightSettings.js';
+import { notiQueue, defaultQueue, reset } from '../Lights/lightSettings.js';
 import WebSocketClient from 'websocket/lib/WebSocketClient.js';
 import { defaultColors } from '../Lights/defaultColors.js';
 import 'dotenv/config'
@@ -29,8 +29,8 @@ function isColorOff(colorHex) {
     const c3 = parseInt(cleanHex.slice(4, 6), 16);
     if (isNaN(c1) || isNaN(c2) || isNaN(c3)) return false;
     return c1 <= NEAR_BLACK_CHANNEL_THRESHOLD &&
-           c2 <= NEAR_BLACK_CHANNEL_THRESHOLD &&
-           c3 <= NEAR_BLACK_CHANNEL_THRESHOLD;
+        c2 <= NEAR_BLACK_CHANNEL_THRESHOLD &&
+        c3 <= NEAR_BLACK_CHANNEL_THRESHOLD;
 }
 
 function isPatternOff(pattern) {
@@ -54,7 +54,7 @@ function updateDefaultQueue(newItems) {
     defaultQueue.splice(0, defaultQueue.length, ...JSON.parse(JSON.stringify(newItems)));
 }
 
-function wsStart(){
+function wsStart() {
     console.log('attempting to start ws')
     wsClient.connect(process.env.MJRURL);
 }
@@ -86,44 +86,44 @@ wsClient.on('connect', (connection) => {
     })
 
     //Pong messages
-    connection.on('pong',() => {
+    connection.on('pong', () => {
         // console.log('PONG')
     })
 
     //Connection Closed Handler
     connection.on('close', (reasonCode, message) => {
-        console.log("Connection Closed, Reason Code: " + reasonCode  + " Message: " + message);
+        console.log("Connection Closed, Reason Code: " + reasonCode + " Message: " + message);
         wsConnected = false;
         let wsStartCounter = 0;
         let intTime = 30000;
         let wsStartFunc = function () {
-            if(wsConnected === false)
-                if(wsStartCounter <= 10){
+            if (wsConnected === false)
+                if (wsStartCounter <= 10) {
                     wsStartCounter++
                     wsStart();
-                }else if(wsStartCounter >10 && wsStartCounter <=25){
+                } else if (wsStartCounter > 10 && wsStartCounter <= 25) {
                     wsStartCounter++
                     intTime = 60000;
                     wsStart();
-                }else{
+                } else {
                     clearInterval(wsStartInt);
-                    setTimeout(function(){
+                    setTimeout(function () {
                         wsStart();
                         1800000
-                    },1800000)
+                    }, 1800000)
                 }
 
         }
-        wsStartInt = setInterval(wsStartFunc,intTime);
+        wsStartInt = setInterval(wsStartFunc, intTime);
     })
 
     //Incoming Message Handler
-    connection.on('message', async(message) => {
-        if(message.type === 'utf8'){
+    connection.on('message', async (message) => {
+        if (message.type === 'utf8') {
             let newDefault = [];
             let json = JSON.parse(message.utf8Data);
-            
-            async function checkDefaultColors (input){
+
+            async function checkDefaultColors(input) {
                 if (!input || typeof input !== 'string') {
                     return {
                         color: null,
@@ -132,12 +132,12 @@ wsClient.on('connect', (connection) => {
                 }
                 input = input.trim().toLowerCase();
                 const matched = defaultColors.find(color => color.name.toLowerCase() === input);
-                if(matched){
+                if (matched) {
                     return {
-                        color : matched.color,
+                        color: matched.color,
                         defaultStatus: true
                     }
-                }else{
+                } else {
                     if (/^#?[0-9a-f]{3}$/i.test(input)) {
                         const hexOnly = input.replace('#', '');
                         input = '#' + hexOnly[0] + hexOnly[0] + hexOnly[1] + hexOnly[1] + hexOnly[2] + hexOnly[2];
@@ -146,19 +146,19 @@ wsClient.on('connect', (connection) => {
                     }
                     if (!/^#[0-9a-f]{6}$/i.test(input)) {
                         return {
-                            color : null,
+                            color: null,
                             defaultStatus: false
                         }
                     }
                     return {
-                        color : input.slice(3,5)+input.slice(1,3)+input.slice(5,7),
+                        color: input.slice(3, 5) + input.slice(1, 3) + input.slice(5, 7),
                         defaultStatus: false
                     }
                 }
             }
 
 
-            async function parseInput(input,type){
+            async function parseInput(input, type) {
                 //Parses the input from the user.
                 const args = input.split(' ');
                 switch (type) {
@@ -170,7 +170,7 @@ wsClient.on('connect', (connection) => {
                             console.log(colorInfo);
 
                             //Runs Solid Lightshow when only arg is HEX or Default Color name
-                            if(colorInfo.color && (currentArg.startsWith("#") || colorInfo.defaultStatus)){
+                            if (colorInfo.color && (currentArg.startsWith("#") || colorInfo.defaultStatus)) {
                                 newDefault.push({
                                     "id": 5,
                                     "type": "solid",
@@ -178,13 +178,13 @@ wsClient.on('connect', (connection) => {
                                     "color": `0x${colorInfo.color}`,
                                     "color2": null
                                 })
-                            }else{
+                            } else {
                                 //Runs each Lightshow based on input from chatter
                                 switch (currentArg.toLowerCase()) {
                                     case 'solid': {
-                                        if(!args[i+1]) return;
-                                        const nextColor = await checkDefaultColors(args[i+1]);
-                                        if(!nextColor.color) return;
+                                        if (!args[i + 1]) return;
+                                        const nextColor = await checkDefaultColors(args[i + 1]);
+                                        if (!nextColor.color) return;
                                         newDefault.push({
                                             "id": 5,
                                             "type": "solid",
@@ -196,9 +196,9 @@ wsClient.on('connect', (connection) => {
                                         break;
                                     }
                                     case 'colorwipe': {
-                                        if(!args[i+1]) return;
-                                        const nextColor = await checkDefaultColors(args[i+1]);
-                                        if(!nextColor.color) return;
+                                        if (!args[i + 1]) return;
+                                        const nextColor = await checkDefaultColors(args[i + 1]);
+                                        if (!nextColor.color) return;
                                         newDefault.push({
                                             "id": 1,
                                             "type": "color-wipe",
@@ -210,9 +210,9 @@ wsClient.on('connect', (connection) => {
                                         break;
                                     }
                                     case 'colorwipereverse': {
-                                        if(!args[i+1]) return;
-                                        const nextColor = await checkDefaultColors(args[i+1]);
-                                        if(!nextColor.color) return;
+                                        if (!args[i + 1]) return;
+                                        const nextColor = await checkDefaultColors(args[i + 1]);
+                                        if (!nextColor.color) return;
                                         newDefault.push({
                                             "id": 2,
                                             "type": "color-wipe-reverse",
@@ -242,12 +242,12 @@ wsClient.on('connect', (connection) => {
                                         })
                                         break;
                                     case 'colortwinkle': {
-                                        if(!args[i+1]) return;
-                                        const c1 = await checkDefaultColors(args[i+1]);
-                                        if(!c1.color) return;
-                                        const c2Arg = args[i+2] ? args[i+2].toLowerCase() : 'white';
+                                        if (!args[i + 1]) return;
+                                        const c1 = await checkDefaultColors(args[i + 1]);
+                                        if (!c1.color) return;
+                                        const c2Arg = args[i + 2] ? args[i + 2].toLowerCase() : 'white';
                                         const c2 = await checkDefaultColors(c2Arg);
-                                        if(!c2.color) return;
+                                        if (!c2.color) return;
                                         newDefault.push({
                                             "id": 16,
                                             "type": "color-twinkle",
@@ -255,7 +255,7 @@ wsClient.on('connect', (connection) => {
                                             "color": `0x${c1.color}`,
                                             "color2": `0x${c2.color}`
                                         })
-                                        i += (args[i+2] ? 2 : 1);
+                                        i += (args[i + 2] ? 2 : 1);
                                         break;
                                     }
                                     case 'candycane':
@@ -281,7 +281,7 @@ wsClient.on('connect', (connection) => {
                                 }
                             }
                         }
-                        if(newDefault.length > 0){
+                        if (newDefault.length > 0) {
                             const isBlackout = isQueueAllOff(newDefault);
 
                             if (blackoutTimer) {
@@ -307,7 +307,7 @@ wsClient.on('connect', (connection) => {
                                     blackoutTimer = null;
                                 }, BLACKOUT_DURATION_MS);
                             }
-                        }else{
+                        } else {
                             return
                         }
                         break;
@@ -315,7 +315,7 @@ wsClient.on('connect', (connection) => {
                         const flashColor = await checkDefaultColors(args[0]);
                         if (flashColor.color) {
                             notiQueue.push({
-                                "id": 6,
+                                "id": 18,
                                 "type": "color-flash",
                                 "name": "color flash",
                                 "color": `0x${flashColor.color}`
@@ -327,100 +327,100 @@ wsClient.on('connect', (connection) => {
                     default:
                         break;
                 }
-                
-            }   
-            if(json.type === 'RESPONSE'){
-                if(json.error === "" && json.message === ""){
+
+            }
+            if (json.type === 'RESPONSE') {
+                if (json.error === "" && json.message === "") {
                     // console.log('Request Response: Error: None Message: Success');
-                }else{
-                    console.log('Request Response: Error: ' + json.error + " Message: " + json.message);    
+                } else {
+                    console.log('Request Response: Error: ' + json.error + " Message: " + json.message);
                 }
-        	}else if(json.type === "MESSAGE"){
+            } else if (json.type === "MESSAGE") {
                 //Runs lightshow based on Channel Event Types.
-                if(json.topic === "channel_follow"){
+                if (json.topic === "channel_follow") {
                     notiQueue.push({
-                        id : 8,
+                        id: 8,
                         type: 'follower',
                         name: "follower",
                         color: `0x${(await checkDefaultColors('#3d0061')).color}`
                     });
-                }else if(json.topic === "channel_bits"){
+                } else if (json.topic === "channel_bits") {
                     notiQueue.push({
-                        id : 9,
+                        id: 9,
                         type: 'bits',
                         name: "bits",
                         color: `0x${(await checkDefaultColors('green')).color}`,
                         color2: `0x${(await checkDefaultColors('white')).color}`,
                     });
-                }else if(json.topic === "channel_subscribe"){
+                } else if (json.topic === "channel_subscribe") {
                     notiQueue.push({
-                        id : 10,
+                        id: 10,
                         type: 'sub',
                         name: "sub",
                         color: `0x${(await checkDefaultColors('purple')).color}`,
                         color2: `0x${(await checkDefaultColors('white')).color}`,
                     });
-                }else if(json.topic === "channel_resubscribe"){
+                } else if (json.topic === "channel_resubscribe") {
                     notiQueue.push({
-                        id : 11,
+                        id: 11,
                         type: 'resub',
                         name: "resub",
                         color: `0x${(await checkDefaultColors('blue')).color}`,
                         color2: `0x${(await checkDefaultColors('white')).color}`,
-                    }); 
-                }else if(json.topic === "channel_sub_gifting"){
+                    });
+                } else if (json.topic === "channel_sub_gifting") {
                     notiQueue.push({
-                        id : 12,
+                        id: 12,
                         type: 'gift-sub',
                         name: "gift sub",
                         color: `0x${(await checkDefaultColors('pink')).color}`,
                         color2: `0x${(await checkDefaultColors('white')).color}`,
                     });
-                }else if(json.topic === "channel_sub_community_gifting"){
+                } else if (json.topic === "channel_sub_community_gifting") {
                     notiQueue.push({
-                        id : 13,
+                        id: 13,
                         type: 'community-gift-sub',
                         name: "community gift sub",
                         color: `0x${(await checkDefaultColors('orange')).color}`,
                         color2: `0x${(await checkDefaultColors('white')).color}`,
                     });
-                }else if(json.topic === "channel_raid"){
+                } else if (json.topic === "channel_raid") {
                     notiQueue.push({
-                        id : 14,
+                        id: 14,
                         type: 'raid',
                         name: "raid",
                         color: `0x${(await checkDefaultColors('red')).color}`,
                         color2: `0x${(await checkDefaultColors('white')).color}`,
                     });
-                }else if(json.topic === "channel_points_reward_redeem"){
+                } else if (json.topic === "channel_points_reward_redeem") {
                     const id = json.message.redemption.reward.id;
-                    if(id == 'e890f1a5-5443-4493-9b58-570dddf892f5'){
-                        await parseInput(json.message.redemption.user_input,1) 
-                    }else if(id == '91a5cdef-cf1d-49d1-8fd1-110bc81f8367'){
-                        await parseInput(json.message.redemption.user_input,2)
-                    }else if(id == '0cde8816-e02a-42bf-939c-78d33d5fd45d'){
+                    if (id == 'e890f1a5-5443-4493-9b58-570dddf892f5') {
+                        await parseInput(json.message.redemption.user_input, 1)
+                    } else if (id == '91a5cdef-cf1d-49d1-8fd1-110bc81f8367') {
+                        await parseInput(json.message.redemption.user_input, 2)
+                    } else if (id == '0cde8816-e02a-42bf-939c-78d33d5fd45d') {
                         notiQueue.push({
                             "id": 7,
                             "type": "rainbow-flash",
                             "name": "rainbow flash",
                             "color": null
                         })
-                    }                  
+                    }
                 }
-            } 	
+            }
         }
     })
 
     //Send Listen Request
-    if(connection.connected){
+    if (connection.connected) {
         connection.send(JSON.stringify({
-            "type" : "LISTEN",
-            "nonce" : `${nonce(80)}`,
-            "channel_id" : `${process.env.channelID}`,
-            "topics" : ["channel_points_reward_redeem", "channel_follow", "channel_bits", "channel_subscribe", "channel_resubscribe", "channel_sub_community_gifting", "channel_sub_gifting", "channel_raid"],
-            "token" : `${process.env.MJRToken}`,
-	    "platform":"Twitch",
-	    "app_id":"Christmas Lights"
+            "type": "LISTEN",
+            "nonce": `${nonce(80)}`,
+            "channel_id": `${process.env.channelID}`,
+            "topics": ["channel_points_reward_redeem", "channel_follow", "channel_bits", "channel_subscribe", "channel_resubscribe", "channel_sub_community_gifting", "channel_sub_gifting", "channel_raid"],
+            "token": `${process.env.MJRToken}`,
+            "platform": "Twitch",
+            "app_id": "Christmas Lights"
         }));
     }
 })
